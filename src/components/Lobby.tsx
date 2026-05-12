@@ -9,6 +9,7 @@ import {
 } from './ui/sidebar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { FeedbackModal } from './FeedbackModal';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { ServerLobby, createLobby, joinLobby } from '@/services/lobbyClient';
@@ -150,6 +151,7 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({ onModeSelect
                       <User size={16} className="text-gold" />
                       <span>Update Profile</span>
                     </button>
+                    <FeedbackModal />
                     <div className="h-px bg-white/5 my-1" />
                     <button 
                       onClick={logout}
