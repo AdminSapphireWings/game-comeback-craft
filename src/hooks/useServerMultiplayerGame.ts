@@ -94,6 +94,7 @@ export function useServerMultiplayerGame(config: ServerMultiplayerGameConfig) {
           player.hand.splice(move.payload.cardIndex, 1);
           newState.discard.push(card);
           newState.turnIndex = rules.computeNextTurnIndex(newState);
+          newState.skipsPending = 0; // Consume skips
           return newState;
         }
       }
@@ -102,6 +103,7 @@ export function useServerMultiplayerGame(config: ServerMultiplayerGameConfig) {
         if (result.success) {
           const nextState = { ...result.state };
           nextState.turnIndex = rules.computeNextTurnIndex(nextState);
+          nextState.skipsPending = 0; // Consume skips
           return nextState;
         }
         return result.state;
@@ -110,6 +112,7 @@ export function useServerMultiplayerGame(config: ServerMultiplayerGameConfig) {
         if (result.success) {
           const nextState = { ...result.state };
           nextState.turnIndex = rules.computeNextTurnIndex(nextState);
+          nextState.skipsPending = 0; // Consume skips
           return nextState;
         }
         return result.state;

@@ -43,8 +43,8 @@ export function useLocalGame(cpuCount: 1 | 2 | 3 = 1) {
   const onChange = useCallback(() => {
     if (!managerRef.current) return;
     
-    // Force re-render by updating gameState
-    setGameState(managerRef.current.state);
+    // Force re-render by updating gameState with a new reference
+    setGameState({ ...managerRef.current.state });
 
     const events = managerRef.current.flushEvents();
     events.forEach((e: GameEvent) => {

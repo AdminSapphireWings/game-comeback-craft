@@ -275,7 +275,10 @@ export class LocalGameManager {
     const player = this.state.players[0];
     const n = player.hand.length;
     if (!n) return this.state;
-    this.state.offset = ((this.state.offset + direction) + n) % n;
+    this.state = {
+      ...this.state,
+      offset: ((this.state.offset + direction) + n) % n,
+    };
     return this.state;
   }
 
@@ -476,6 +479,7 @@ export class LocalGameManager {
     }
     
     this.state.turnIndex = nextIdx;
+    this.state.skipsPending = 0; // Consume skips
     this.state = rules.autoCallLastCardCPU(this.state);
 
     const nextPlayer = this.state.players[nextIdx];
@@ -492,6 +496,11 @@ export class LocalGameManager {
       // Schedule CPU turn
       const timeoutId = setTimeout(() => this.executeCPUTurn(), this.cpuDelay);
       this.pendingTimeouts.push(timeoutId);
+    }
+
+    // Notify UI of turn change
+    if ((this as any)._onChangeCallback) {
+      (this as any)._onChangeCallback();
     }
   }
 

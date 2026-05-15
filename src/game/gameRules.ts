@@ -158,6 +158,12 @@ export function applySpecialCard(state: GameState, card: Card, wildSuit?: string
     newState.pending += 5;
   } else if (card.value === '8') {
     newState.dir *= -1;
+    const activePlayers = newState.players.filter(p => !p.isEliminated);
+    if (activePlayers.length === 2) {
+      newState.skipsPending += 1;
+    }
+  } else if (card.value === '7') {
+    newState.skipsPending += 1;
   } else if (card.value === 'jack') {
     newState.jokerWild = false;
     newState.jokerOnTop = false;
@@ -182,20 +188,10 @@ export function computeNextTurnIndex(state: GameState): number {
     return state.players.findIndex(p => !p.isEliminated);
   }
 
-  let totalSkips = 0;
-  for (let i = state.discard.length - 1; i >= 0; i--) {
-    if (state.discard[i].value === '7') totalSkips++;
-    else break;
-  }
-
   let step = state.dir;
   
-  // Handle 8 as skip in 1v1
-  const lastPlayed = state.discard[state.discard.length - 1];
-  if (numPlayers === 2 && lastPlayed && lastPlayed.value === '8') {
-    step = 0;
-  } else if (totalSkips > 0) {
-    step = state.dir * (totalSkips + 1);
+  if (state.skipsPending > 0) {
+    step = state.dir * (state.skipsPending + 1);
   }
 
   const nextActiveIdx = (currentActiveIdx + step + (numPlayers * 10)) % numPlayers;

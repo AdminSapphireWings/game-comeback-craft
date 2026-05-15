@@ -38,6 +38,7 @@ export interface GameState {
   wildSuit: string | null;
   stack: Card[];
   oppStack: Card[];
+  skipsPending: number;
   gameMode: 'local' | 'multiplayer';
   gameId?: string;
   lastActionMessage?: string;
@@ -108,6 +109,7 @@ export function createInitialState(gameMode: 'local' | 'multiplayer' = 'local', 
     wildSuit: null,
     stack: [],
     oppStack: [],
+    skipsPending: 0,
     gameMode,
   };
 }
