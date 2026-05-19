@@ -36,8 +36,11 @@ export function drawCards(state: GameState, count: number): { state: GameState; 
       // Reshuffle: move discard back to deck (keeping top card)
       if (newState.discard.length <= 1) break;
       const topCard = newState.discard[newState.discard.length - 1];
-      const reshuffled = newState.discard.slice(0, -1).filter(c => c.value !== 'joker');
-      newState.deck = shuffle(reshuffled);
+      const rest = newState.discard.slice(0, -1);
+      const nonJokers = rest.filter(c => c.value !== 'joker');
+      
+      // If filtering jokers results in no cards, use the rest (or handle as game state requires)
+      newState.deck = shuffle(nonJokers.length > 0 ? nonJokers : rest);
       newState.discard = [topCard];
     }
 
@@ -199,10 +202,15 @@ export function computeNextTurnIndex(state: GameState): number {
 }
 
 export function autoCallLastCardCPU(state: GameState): GameState {
-  const newState = { ...state };
+  const newState = { ...state, players: state.players.map(p => ({ ...p })) };
   newState.players.forEach(p => {
-    if (!p.isLocal && !p.lastCalled && canCallLastCard(p)) {
-      p.lastCalled = true;
+    if (!p.isLocal) {
+      const can = canCallLastCard(p);
+      if (can && !p.lastCalled) {
+        p.lastCalled = true;
+      } else if (!can && p.lastCalled) {
+        p.lastCalled = false;
+      }
     }
   });
   return newState;
@@ -292,6 +300,7 @@ export function playCard(
   }
 
   player.hand.splice(cardIndex, 1);
+  if (player.hand.length > 1) player.lastCalled = false;
   newState.offset = player.hand.length > 0 ? newState.offset % player.hand.length : 0;
 
   // For jokers: play immediately ONLY if it's the only one of its value in hand
@@ -316,11 +325,12 @@ export function playCard(
 
       if (victory.reason === 'not-called') {
         resultState = applyVictoryPenalty(resultState, playerIndex);
+        player.lastCalled = false;
       } else if (victory.reason === 'jack-bridge' || victory.reason === 'special-finish') {
         resultState = applyVictoryDraw(resultState, playerIndex);
+        // Keep lastCalled true for victory draw tracking
       }
 
-      player.lastCalled = false;
       return { state: resultState, moveType: 'play', success: true, message: 'Card played' };
     }
     // Note: If otherJokers.length > 0, it falls through to the stack logic below
@@ -362,11 +372,12 @@ export function playCard(
 
     if (victory.reason === 'not-called') {
       resultState = applyVictoryPenalty(resultState, playerIndex);
+      player.lastCalled = false;
     } else if (victory.reason === 'jack-bridge' || victory.reason === 'special-finish') {
       resultState = applyVictoryDraw(resultState, playerIndex);
+      // Keep lastCalled true for victory draw tracking
     }
 
-    player.lastCalled = false;
     return { state: resultState, moveType: 'play', success: true, message: 'Card played' };
   }
 }
@@ -389,6 +400,7 @@ export function playStack(state: GameState, playerIndex: number, wildSuit?: stri
     Object.assign(newState, withSpecial);
   });
   newState.stack = [];
+  if (player.hand.length > 1) player.lastCalled = false;
 
   const victory = checkVictory(newState, player, playedStack);
   if (victory.won) {
@@ -405,12 +417,13 @@ export function playStack(state: GameState, playerIndex: number, wildSuit?: stri
   if (victory.reason === 'not-called') {
     const penaltyState = applyVictoryPenalty(newState, playerIndex);
     Object.assign(newState, penaltyState);
+    player.lastCalled = false;
   } else if (victory.reason === 'jack-bridge' || victory.reason === 'special-finish') {
     const drawState = applyVictoryDraw(newState, playerIndex);
     Object.assign(newState, drawState);
+    // Keep lastCalled true for victory draw tracking
   }
 
-  player.lastCalled = false;
   return { state: newState, moveType: 'playStack', success: true, message: 'Stack played' };
 }
 
@@ -502,6 +515,7 @@ export function drawCard(state: GameState, playerIndex: number): GameMoveResult 
   const { state: drawState, cards } = drawCards(newState, cardsToAdd);
   const targetPlayer = drawState.players[playerIndex];
   targetPlayer.hand.push(...cards);
+  targetPlayer.lastCalled = false;
 
   return { state: drawState, moveType: 'draw', success: true, message: `Drew ${cardsToAdd} card(s)` };
 }

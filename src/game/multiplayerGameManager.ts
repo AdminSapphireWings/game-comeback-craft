@@ -224,19 +224,16 @@ export class MultiplayerGameManager {
         const payload = event.payload as { cardIndex: number };
         const result = rules.playCard(this.state, event.playerId, payload.cardIndex);
         this.state = result.state;
-        this.emitToast(`${this.state.players[event.playerId].name} played a card`);
         break;
       }
       case 'draw': {
         const result = rules.drawCard(this.state, event.playerId);
         this.state = result.state;
-        this.emitToast(`${this.state.players[event.playerId].name} drew a card`);
         break;
       }
       case 'playStack': {
         const result = rules.playStack(this.state, event.playerId);
         this.state = result.state;
-        this.emitToast(`${this.state.players[event.playerId].name} played stack`);
         break;
       }
       case 'callLastCard': {

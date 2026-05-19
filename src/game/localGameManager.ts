@@ -113,50 +113,15 @@ export class LocalGameManager {
   }
 
   private handleVictory(winner: Player) {
-    const activePlayers = this.state.players.filter(p => !p.isEliminated);
+    this.state.over = true;
     
-    if (activePlayers.length <= 2) {
-      // Game over
-      this.state.over = true;
-      const loser = activePlayers.find(p => p.id !== winner.id);
-      if (loser) loser.isEliminated = true;
-      
-      this.emitModal(
-        winner.isLocal ? 'You Win!' : winner.name + ' Wins!',
-        'Game over!',
-      );
-    } else {
-      // Round over, eliminate highest points
-      let maxPoints = -1;
-      let playerToEliminate: Player | null = null;
+    this.emitModal(
+      winner.isLocal ? 'You Win!' : winner.name + ' Wins!',
+      'Game over!',
+    );
 
-      for (const p of activePlayers) {
-        if (p.id !== winner.id) {
-          const points = calculatePoints(p.hand);
-          p.points = (p.points || 0) + points; // Keep track of cumulative or just this round? Server seems to replace.
-          if (points > maxPoints) {
-            maxPoints = points;
-            playerToEliminate = p;
-          }
-        } else {
-          // Winner of round gets 0 points for the round
-        }
-      }
-
-      if (playerToEliminate) {
-        playerToEliminate.isEliminated = true;
-        this.emitModal(
-          winner.isLocal ? 'You Won the Round!' : winner.name + ' Won the Round!',
-          `${playerToEliminate.name} is eliminated with ${maxPoints} points. Starting next round...`,
-        );
-      }
-
-      // Reset for next round - done after modal is closed in useLocalGame usually, 
-      // but here we need to prepare the state.
-      this.state.players.forEach(p => p.hand = []);
-      // We will call startNewRound when the modal is acknowledged or after a delay.
-      // To keep it consistent with the event loop, we'll let useLocalGame trigger it or do it here with a flag.
-    }
+    const onChange = (this as any)._onChangeCallback;
+    if (onChange) onChange();
   }
 
   /**
@@ -404,10 +369,17 @@ export class LocalGameManager {
     if (stackCards.length > 1) {
       console.log('>>> CPU plays stack of', stackCards.length, 'cards - committing to discard');
       
+      // Before playing, check if this move will leave us with <= 1 card
+      if (!player.lastCalled && (player.hand.length - stackCards.length) <= 1) {
+        player.lastCalled = true;
+        this.emitToast(player.name + ': Last Card!');
+      }
+
       // Add cards to stack and immediately play them (commit to discard)
-      this.state.stack = stackCards;
+      this.state.stack = [...stackCards];
       stackCards.forEach(c => {
-        player.hand.splice(player.hand.indexOf(c), 1);
+        const idx = player.hand.indexOf(c);
+        if (idx !== -1) player.hand.splice(idx, 1);
       });
       
       // Immediately commit stack to discard (like the player does with playStack)
@@ -433,8 +405,20 @@ export class LocalGameManager {
     const card = this.selectBestCPUCard(player.hand);
     if (card) {
       console.log('>>> CPU plays card:', card.id);
+      
+      // Before playing, check if this move will leave us with <= 1 card
+      if (!player.lastCalled && (player.hand.length - 1) <= 1) {
+        player.lastCalled = true;
+        this.emitToast(player.name + ': Last Card!');
+      }
+
       const result = rules.playCard(this.state, this.state.turnIndex, player.hand.indexOf(card));
       this.state = result.state;
+      
+      console.log('>>> CPU play result:', result.message, 'winner:', result.winner ? result.winner.name : 'none');
+      if (result.winner) {
+        console.log('>>> CPU declared winner, triggering handleVictory');
+      }
       
       // Trigger re-render
       if (onChange) onChange();
