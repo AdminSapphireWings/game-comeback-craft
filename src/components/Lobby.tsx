@@ -45,8 +45,8 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({ onModeSelect
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="w-screen min-h-screen flex bg-[#0a0f1a] text-white font-sans overflow-hidden">
-        <SidebarInset className="flex-1 flex flex-col relative bg-transparent overflow-y-auto">
+      <div className="w-screen h-screen flex bg-[#0a0f1a] text-white font-sans overflow-hidden">
+        <SidebarInset className="flex-1 flex flex-col relative bg-transparent overflow-y-auto custom-scrollbar">
           {/* Mobile Sidebar Trigger */}
           <div className="absolute top-4 right-4 z-50 md:hidden">
             <SidebarTrigger className="bg-white/5 border border-white/10 hover:bg-white/10 text-white" />
@@ -64,7 +64,7 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({ onModeSelect
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 md:px-8 py-8 md:py-0">
+          <div className="flex-1 flex flex-col items-center justify-start md:justify-center relative z-10 px-4 md:px-8 py-16 md:py-0">
             <div className="text-center mb-8 md:mb-16 space-y-4">
               <div className="inline-block px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-[10px] md:text-xs font-bold tracking-[4px] uppercase mb-2 md:mb-4 animate-in fade-in slide-in-from-top-4 duration-1000">
                 Welcome to
@@ -284,7 +284,7 @@ export const LocalLobby: React.FC<LocalLobbyProps> = ({ onGameStart }) => {
   const [cpuCount, setCpuCount] = useState<1 | 2 | 3>(1);
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-[#0a0f1a] overflow-hidden text-white font-sans">
+    <div className="w-screen min-h-screen flex flex-col items-center bg-[#0a0f1a] overflow-y-auto text-white font-sans">
       {/* Background Animated Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-blue-500/20 rounded-full blur-[120px] animate-pulse" />
@@ -542,7 +542,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   if (!lobby) {
     return (
-      <div className="w-screen min-h-screen flex flex-col items-center justify-center bg-[#0a0f1a] overflow-hidden text-white font-sans">
+      <div className="w-screen min-h-screen flex flex-col items-center bg-[#0a0f1a] overflow-y-auto text-white font-sans">
         {/* Background Animated Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
           <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-gold/10 rounded-full blur-[120px] animate-pulse" />
@@ -637,7 +637,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   const shareLink = `${window.location.origin}/join/${lobby.joinCode}`;
 
   return (
-    <div className="w-screen min-h-screen flex flex-col items-center justify-center bg-[#0a0f1a] overflow-y-auto py-8 px-3 md:px-4 text-white font-sans">
+    <div className="w-screen flex-1 flex flex-col items-center bg-[#0a0f1a] overflow-y-auto py-6 md:py-8 px-3 md:px-4 text-white font-sans">
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-gold/10 rounded-full blur-[120px] animate-pulse" />
       </div>

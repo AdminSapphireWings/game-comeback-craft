@@ -337,8 +337,8 @@ const GameUI = ({
                     style={{
                       animation: 'flyToHand 400ms ease-out forwards',
                     }}>
-                    <div className="w-[60px] h-[84px] rounded-[5px] bg-white border border-gray-300 shadow-xl overflow-hidden">
-                      <img src={cardUrl(drawnCard)} alt="flying" className="w-full h-full object-contain" />
+                    <div className="w-[60px] h-[84px] rounded-[5px] border border-gold/30 shadow-xl overflow-hidden"
+                         style={{ background: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #1a237e 100%)' }}>
                     </div>
                   </div>
                 )}

@@ -43,8 +43,8 @@ export function useLocalGame(cpuCount: 1 | 2 | 3 = 1) {
   const onChange = useCallback(() => {
     if (!managerRef.current) return;
     
-    // Force re-render by updating gameState
-    setGameState(managerRef.current.state);
+    // Force re-render by updating gameState with a new reference
+    setGameState({ ...managerRef.current.state });
 
     const events = managerRef.current.flushEvents();
     events.forEach((e: GameEvent) => {
@@ -56,12 +56,6 @@ export function useLocalGame(cpuCount: 1 | 2 | 3 = 1) {
       if (e.type === 'status') setStatusMsg(e.message);
       if (e.type === 'modal') {
         setModal({ title: e.title, message: e.message });
-        
-        // If game is over, record result
-        if (e.message === 'Game over!') {
-          const winnerId = managerRef.current!.state.turnIndex; // In localGameManager, turnIndex is the winner when over
-          recordGameResult(winnerId, managerRef.current!.state.players);
-        }
       }
     });
   }, [recordGameResult]);

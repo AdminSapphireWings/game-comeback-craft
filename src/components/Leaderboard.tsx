@@ -32,7 +32,7 @@ export const Leaderboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   }, []);
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-[#0a0f1a] overflow-hidden text-white font-sans">
+    <div className="w-screen h-full flex flex-col items-center justify-start bg-[#0a0f1a] overflow-y-auto text-white font-sans">
       {/* Background Animated Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[120px] animate-pulse" />
